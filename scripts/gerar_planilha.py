@@ -82,20 +82,33 @@ STATUS_UN = ["DISPONÍVEL", "RESERVADA", "VENDIDA", "PERMUTA"]
 TIPO_PARC = "Sinal / Entrada,Parcela mensal,Intermediária,Chaves,Financiamento bancário,Outros"
 
 # ----------------------------------------------------------------------------
-# Paleta
+# Paleta — guia de marca HLM (preto, laranja, creme e cinza quente)
 # ----------------------------------------------------------------------------
-NAVY = "#1F2A44"
-NAVY2 = "#2E4057"
-TEAL = "#0F766E"
-ORANGE = "#C2410C"
-GOLD = "#B45309"
-INPUT = "#FFF7D6"
-AUTO = "#F1F4F8"
-LINE = "#C9D1DC"
-GREEN_BG, GREEN_FG = "#DCFCE7", "#166534"
-RED_BG, RED_FG = "#FEE2E2", "#991B1B"
-AMB_BG, AMB_FG = "#FEF3C7", "#92400E"
-SERIES = ["#1F4E79", "#E07A1F", "#2A9D8F", "#8E5EA2", "#C0392B", "#7F8C8D", "#D4A017", "#3A86FF"]
+INK = "#040203"        # preto HLM
+INK2 = "#1C1A19"       # preto suave (barras de seção)
+BRAND = "#D45508"      # laranja HLM
+BRAND_D = "#A83F03"    # laranja escuro
+BRAND_L = "#FBE6D6"    # laranja claro (tints)
+CREAM = "#DBD4CA"      # creme HLM
+CREAM_L = "#F4F1EC"    # creme claro
+WARM = "#AEA79F"       # cinza quente
+WARM_D = "#6B5E52"     # cinza quente escuro
+WINE = "#951D25"       # vinho (alertas)
+NAVY = INK
+NAVY2 = INK2
+TEAL = INK
+ORANGE = WARM          # cor das abas de lançamento
+GOLD = BRAND_D
+INPUT = "#FDF3EA"      # célula de preenchimento
+AUTO = CREAM_L         # célula calculada
+LINE = "#D9D2C8"
+GREEN_BG, GREEN_FG = "#E4EBDF", "#2F5D3A"
+RED_BG, RED_FG = "#F6DEDB", WINE
+AMB_BG, AMB_FG = BRAND_L, BRAND_D
+SERIES = [BRAND, INK, WARM, BRAND_D, WINE, WARM_D, CREAM, "#E8894D"]
+F_TIT = "Space Grotesk"   # tipografia de títulos (marca)
+F_MONO = "Space Mono"     # rótulos / kicker (marca)
+F_TXT = "Arial"           # dados
 
 MOEDA = '"R$" #,##0.00;[Red]-"R$" #,##0.00;"–"'
 MOEDA0 = '"R$" #,##0;[Red]-"R$" #,##0;"–"'
@@ -117,7 +130,7 @@ class F:
         self.cache = {}
 
     def __call__(self, **kw):
-        base = {"font_name": "Calibri", "font_size": 10, "valign": "vcenter"}
+        base = {"font_name": F_TXT, "font_size": 10, "valign": "vcenter", "font_color": INK}
         base.update(kw)
         key = tuple(sorted(base.items()))
         if key not in self.cache:
@@ -144,12 +157,17 @@ def build(path, exemplo=False, macro=False):
         ws[nome] = w
 
     # ---------------- formatos comuns
-    f_title = fm(bold=True, font_size=18, font_color="white", bg_color=NAVY, indent=1)
-    f_sub = fm(italic=True, font_color="#475569", font_size=10, indent=1)
-    f_sec = fm(bold=True, font_size=11, font_color="white", bg_color=NAVY2, indent=1)
-    f_hdr = fm(bold=True, font_color="white", bg_color=NAVY2, align="center", text_wrap=True, border=1, border_color=LINE)
-    f_hdr_l = fm(bold=True, font_color="white", bg_color=NAVY2, align="left", text_wrap=True, border=1, border_color=LINE, indent=1)
-    f_hdr_mes = fm(bold=True, font_color="white", bg_color=NAVY2, align="center", border=1, border_color=LINE, num_format=MES)
+    f_title = fm(bold=True, font_size=18, font_color="white", bg_color=INK, indent=1, font_name=F_TIT,
+                 bottom=5, bottom_color=BRAND)
+    f_sub = fm(font_color=WARM_D, font_size=9, indent=1, font_name=F_MONO)
+    f_sec = fm(bold=True, font_size=11, font_color=INK, bg_color="#FFFFFF", font_name=F_TIT,
+               bottom=2, bottom_color=BRAND, valign="bottom")
+    f_hdr = fm(bold=True, font_color=INK, bg_color=CREAM, align="center", text_wrap=True, border=1, border_color="#C8BFB3",
+               font_name=F_TIT, font_size=9)
+    f_hdr_l = fm(bold=True, font_color=INK, bg_color=CREAM, align="left", text_wrap=True, border=1, border_color="#C8BFB3", indent=1,
+                 font_name=F_TIT, font_size=9)
+    f_hdr_mes = fm(bold=True, font_color=INK, bg_color=CREAM, align="center", border=1, border_color="#C8BFB3", num_format=MES,
+                   font_name=F_TIT, font_size=9)
 
     def f_in(nf=None, **kw):
         d = dict(bg_color=INPUT, border=1, border_color=LINE)
@@ -167,12 +185,12 @@ def build(path, exemplo=False, macro=False):
 
     f_lbl = fm(border=1, border_color=LINE, indent=1)
     f_lbl_b = fm(border=1, border_color=LINE, indent=1, bold=True)
-    f_note = fm(italic=True, font_color="#64748B", font_size=9, text_wrap=True, valign="top")
-    f_tot_l = fm(bold=True, bg_color="#E2E8F0", border=1, border_color=LINE, indent=1)
-    f_tot = fm(bold=True, bg_color="#E2E8F0", border=1, border_color=LINE, num_format=MOEDA)
-    f_tot_p = fm(bold=True, bg_color="#E2E8F0", border=1, border_color=LINE, num_format=PCT)
-    f_big_l = fm(bold=True, font_color="white", bg_color=TEAL, border=1, border_color=LINE, indent=1)
-    f_big = fm(bold=True, font_color="white", bg_color=TEAL, border=1, border_color=LINE, num_format=MOEDA)
+    f_note = fm(italic=True, font_color=WARM_D, font_size=9, text_wrap=True, valign="top")
+    f_tot_l = fm(bold=True, bg_color="#ECE7E0", border=1, border_color=LINE, indent=1)
+    f_tot = fm(bold=True, bg_color="#ECE7E0", border=1, border_color=LINE, num_format=MOEDA)
+    f_tot_p = fm(bold=True, bg_color="#ECE7E0", border=1, border_color=LINE, num_format=PCT)
+    f_big_l = fm(bold=True, font_color="white", bg_color=INK, border=1, border_color=INK, indent=1, font_name=F_TIT)
+    f_big = fm(bold=True, font_color=BRAND, bg_color=INK, border=1, border_color=INK, num_format=MOEDA, font_size=11)
 
     def nome_titulo(prefixo):
         return '=UPPER(NomeEmp)&"  |  %s"' % prefixo
@@ -209,13 +227,13 @@ def build(path, exemplo=False, macro=False):
     c.set_row(1, 30)
     c.merge_range("B2:R2", "", f_title)
     c.write_formula("B2", nome_titulo("CONFIGURAÇÕES E CADASTROS"), f_title)
-    c.merge_range("B3:R3", "Preencha as células AMARELAS. Tudo o que está aqui alimenta automaticamente as demais abas (listas suspensas, rateio, taxas, viabilidade).", f_sub)
+    c.merge_range("B3:R3", "Preencha as células LARANJA-CLARAS. Tudo o que está aqui alimenta automaticamente as demais abas (listas suspensas, rateio, taxas, viabilidade).", f_sub)
 
     c.merge_range("B4:D4", "DADOS DO EMPREENDIMENTO", f_sec)
     cfg = [
         # nome, label, valor(es), formato, nota, is_input
         ("NomeEmp", "Nome do empreendimento", "NOVO EMPREENDIMENTO HLM", None, "Ainda sem nome definitivo — altere aqui e todos os títulos mudam.", True),
-        ("Construtora", "Construtora / administradora", "HLM", None, "Responsável pela administração da obra.", True),
+        ("Construtora", "Construtora / administradora", "HLM Construções", None, "Responsável pela administração da obra.", True),
         ("Endereco", "Endereço / localização", "", None, "", True),
         ("Matricula", "Matrícula / alvará / ART", "", None, "", True),
         ("DataInicio", "Início do controle financeiro (mês 1)", dt.date(2026, 11, 1), DATA, "O FLUXO DE CAIXA começa neste mês e cobre %d meses." % N_MESES, True),
@@ -412,7 +430,7 @@ def build(path, exemplo=False, macro=False):
                '"OK"))))))))))))').format(R)
         d.write_formula(i, 13, chk, f_au(align="center", font_size=9))
         d.write_formula(i, 14, '=IF(AND(B{0}=SelMes,N(J{0})<>0,K{0}<>"A PAGAR"),COUNTIFS(B${1}:B{0},SelMes,J${1}:J{0},"<>",K${1}:K{0},"<>A PAGAR"),"")'.format(R, D_INI),
-                        fm(font_color="#94A3B8", font_size=8))
+                        fm(font_color=WARM, font_size=8))
     last = D_FIM - 1
     d.data_validation(D_INI - 1, 2, last, 2, {"validate": "list", "source": ["OFICIAL", "ESPECIAL"],
                                               "input_title": "Tipo", "input_message": "OFICIAL = com nota\nESPECIAL = sem nota"})
@@ -478,7 +496,7 @@ def build(path, exemplo=False, macro=False):
                'IF(N(M{0})<0,"TOTAL NEGATIVO","OK")))))))))').format(R)
         fo.write_formula(i, 14, chk, f_au(align="center", font_size=9))
         fo.write_formula(i, 15, '=IF(AND(B{0}=SelMes,M{0}<>""),COUNTIFS(B${1}:B{0},SelMes,M${1}:M{0},"<>"),"")'.format(R, F_INI),
-                         fm(font_color="#94A3B8", font_size=8))
+                         fm(font_color=WARM, font_size=8))
     last = F_FIM - 1
     fo.data_validation(F_INI - 1, 2, last, 2, {"validate": "list", "source": ["1ª Quinzena (01-15)", "2ª Quinzena (16-fim)", "Mensal", "Avulso"]})
     fo.data_validation(F_INI - 1, 3, last, 3, {"validate": "list", "source": "=Equipe", "show_error": False})
@@ -590,14 +608,14 @@ def build(path, exemplo=False, macro=False):
         v.write_formula(i, 17, chk, f_au(align="center", font_size=9))
     v.data_validation(V_INI - 1, 5, V_FIM - 1, 5, {"validate": "list", "source": STATUS_UN})
     cf_check(v, "R%d:R%d" % (V_INI, V_FIM))
-    for st, bg, fg in [("VENDIDA", GREEN_BG, GREEN_FG), ("RESERVADA", AMB_BG, AMB_FG), ("PERMUTA", "#E0E7FF", "#3730A3")]:
+    for st, bg, fg in [("VENDIDA", GREEN_BG, GREEN_FG), ("RESERVADA", AMB_BG, AMB_FG), ("PERMUTA", "#ECE7E0", "#3A3633")]:
         v.conditional_format("F%d:F%d" % (V_INI, V_FIM), {"type": "cell", "criteria": "==", "value": '"%s"' % st,
                                                          "format": fm(bg_color=bg, font_color=fg, bold=True)})
-    v.conditional_format("Q%d:Q%d" % (V_INI, V_FIM), {"type": "data_bar", "bar_color": "#2A9D8F", "bar_solid": True,
+    v.conditional_format("Q%d:Q%d" % (V_INI, V_FIM), {"type": "data_bar", "bar_color": WARM_D, "bar_solid": True,
                                                        "min_type": "num", "min_value": 0, "max_type": "num", "max_value": 1})
     tr = V_FIM
     v.write(tr, 0, "TOTAL", f_tot_l)
-    v.write_formula(tr, 2, "=SUM(V_AREA)", fm(bold=True, bg_color="#E2E8F0", border=1, border_color=LINE, num_format="#,##0.00"))
+    v.write_formula(tr, 2, "=SUM(V_AREA)", fm(bold=True, bg_color="#ECE7E0", border=1, border_color=LINE, num_format="#,##0.00"))
     for col in (4, 10, 13, 14, 15):
         cl = xl_col_to_name(col)
         v.write_formula(tr, col, "=SUM(%s%d:%s%d)" % (cl, V_INI, cl, V_FIM), f_tot)
@@ -669,8 +687,8 @@ def build(path, exemplo=False, macro=False):
     fx.freeze_panes(5, 2)
 
     f_fx = f_au(MOEDA)
-    f_fx_b = fm(bold=True, bg_color="#E2E8F0", border=1, border_color=LINE, num_format=MOEDA)
-    f_fx_warn = fm(bg_color="#FFF1F2", border=1, border_color=LINE, num_format=MOEDA, font_color=RED_FG, italic=True)
+    f_fx_b = fm(bold=True, bg_color="#ECE7E0", border=1, border_color=LINE, num_format=MOEDA)
+    f_fx_warn = fm(bg_color="#FBEDEB", border=1, border_color=LINE, num_format=MOEDA, font_color=RED_FG, italic=True)
     f_fx_in = f_in(MOEDA)
 
     def fx_sec(r, text):
@@ -722,7 +740,7 @@ def build(path, exemplo=False, macro=False):
             lambda cl, k: 'SUMIFS(R_VALOR,R_STATUS,"A RECEBER",R_DATA,">="&%s$5,R_DATA,"<"&EDATE(%s$5,1))' % (cl, cl))
     fx_line(31, "SALDO PROJETADO ACUMULADO (realizado + previsto)",
             lambda cl, k: ("%s26+%s30-%s29" % (cl, cl, cl)) if k == 0 else ("%s31+%s26+%s30-%s29" % (xl_col_to_name(C0 + k - 1), cl, cl, cl)),
-            fm(bold=True, border=1, border_color=LINE, num_format=MOEDA, bg_color="#E0F2F1"), f_lbl_b, total="last")
+            fm(bold=True, border=1, border_color=LINE, num_format=MOEDA, bg_color=BRAND_L), f_lbl_b, total="last")
     fx_sec(33, "INDICADORES E CURVA DE DESEMBOLSO")
     fx_line(34, "   Custo realizado acumulado (c/ adm)",
             lambda cl, k: ("%s24" % cl) if k == 0 else ("%s34+%s24" % (xl_col_to_name(C0 + k - 1), cl)), total="last")
@@ -743,10 +761,10 @@ def build(path, exemplo=False, macro=False):
     fx.write(41, 0, "A linha 38 vem preenchida com o orçamento projetado ÷ prazo (distribuição linear). Substitua pelos valores do seu cronograma físico-financeiro.", f_note)
     for rr in (26, 27, 31):
         fx.conditional_format(rr - 1, C0, rr - 1, C0 + N_MESES - 1, {"type": "cell", "criteria": "<", "value": -0.005,
-                                                                      "format": fm(font_color="#FFFFFF", bg_color="#B91C1C", bold=True)})
+                                                                      "format": fm(font_color="#FFFFFF", bg_color=WINE, bold=True)})
     for rr in (13, 19):
         fx.conditional_format(rr - 1, 1, rr - 1, C0 + N_MESES - 1, {"type": "cell", "criteria": "not between", "minimum": -0.005, "maximum": 0.005,
-                                                                     "format": fm(bg_color="#FCA5A5", bold=True)})
+                                                                     "format": fm(bg_color="#E8B4AE", bold=True)})
     fx.set_landscape()
     fx.fit_to_pages(0, 1)
     fx.repeat_columns(0, 1)
@@ -761,7 +779,7 @@ def build(path, exemplo=False, macro=False):
     o.set_row(1, 30)
     o.merge_range("A2:O2", "", f_title)
     o.write_formula("A2", nome_titulo("ORÇAMENTO × REALIZADO × AVANÇO FÍSICO"), f_title)
-    o.merge_range("A3:O3", "Preencha ORÇADO e % AVANÇO FÍSICO (amarelo). O realizado vem de DESPESAS (pagas) e FOLHA PAG pela ETAPA. "
+    o.merge_range("A3:O3", "Preencha ORÇADO e % AVANÇO FÍSICO (células laranja-claras). O realizado vem de DESPESAS (pagas) e FOLHA PAG pela ETAPA. "
                    "Custo projetado (EAC) = realizado ÷ avanço físico (a partir de 10% de avanço).", f_sub)
     o.set_row(4, 36)
     o.write_row(4, 0, ["ETAPA", "ORÇADO (R$)", "PESO", "REALIZADO DESPESAS", "REALIZADO FOLHA", "REALIZADO TOTAL",
@@ -830,10 +848,10 @@ def build(path, exemplo=False, macro=False):
     o.conditional_format("N%d:N%d" % (O1, ONC), {"type": "cell", "criteria": "==", "value": '"ATENÇÃO"', "format": fm(bg_color=AMB_BG, font_color=AMB_FG, bold=True)})
     o.conditional_format("N%d:N%d" % (O1, ONC), {"type": "cell", "criteria": "==", "value": '"ESTOURADO"', "format": fm(bg_color=RED_BG, font_color=RED_FG, bold=True)})
     o.conditional_format("N%d:N%d" % (O1, ONC), {"type": "cell", "criteria": "==", "value": '"SEM ORÇAMENTO"', "format": fm(bg_color=RED_BG, font_color=RED_FG, bold=True)})
-    o.conditional_format("I%d:J%d" % (O1, O2), {"type": "data_bar", "bar_color": "#3A86FF", "bar_solid": True,
+    o.conditional_format("I%d:J%d" % (O1, O2), {"type": "data_bar", "bar_color": BRAND, "bar_solid": True,
                                                  "min_type": "num", "min_value": 0, "max_type": "num", "max_value": 1})
     o.conditional_format("D%d:G%d" % (ONC, ONC), {"type": "cell", "criteria": "not between", "minimum": -0.005, "maximum": 0.005,
-                                                   "format": fm(bg_color="#FCA5A5", bold=True)})
+                                                   "format": fm(bg_color="#E8B4AE", bold=True)})
     o.data_validation(O1 - 1, 9, O2 - 1, 9, {"validate": "decimal", "criteria": "between", "minimum": 0, "maximum": 1,
                                              "error_message": "Use um percentual entre 0% e 100%."})
     o.freeze_panes(5, 1)
@@ -860,7 +878,7 @@ def build(path, exemplo=False, macro=False):
 
     def vrow(r, key, label, formula, nf=MOEDA, note="", strong=False):
         vi.write(r - 1, 1, label, f_tot_l if strong else f_lbl)
-        vi.write_formula(r - 1, 2, formula, (f_tot if nf == MOEDA else fm(bold=True, bg_color="#E2E8F0", border=1, border_color=LINE, num_format=nf)) if strong else f_au(nf))
+        vi.write_formula(r - 1, 2, formula, (f_tot if nf == MOEDA else fm(bold=True, bg_color="#ECE7E0", border=1, border_color=LINE, num_format=nf)) if strong else f_au(nf))
         if note:
             vi.write(r - 1, 3, note, f_note)
         if key:
@@ -935,10 +953,10 @@ def build(path, exemplo=False, macro=False):
             cc = xl_rowcol_to_cell(sr0, 6 + j, row_abs=True)
             fml = "=$C$9*(1+{p})*(1-IFERROR($C$10/$C$9,ComissaoPadrao)-ImpostoVendas)-($C$17*(1+{c})+$C$18+$C$19)".format(p=pc, c=cc)
             base = (i == 3 and j == 2)
-            vi.write_formula(rr, 6 + j, fml, fm(border=1, border_color=LINE, num_format=MOEDA0, bold=base, bg_color="#E0F2F1" if base else "#FFFFFF"))
+            vi.write_formula(rr, 6 + j, fml, fm(border=1, border_color=LINE, num_format=MOEDA0, bold=base, bg_color=BRAND_L if base else "#FFFFFF"))
     sens_area = "G%d:M%d" % (sr0 + 2, sr0 + 1 + len(precos))
-    vi.conditional_format(sens_area, {"type": "3_color_scale", "min_color": "#F8B4B4", "mid_type": "num", "mid_value": 0,
-                                      "mid_color": "#FFFFFF", "max_color": "#A7E3C4"})
+    vi.conditional_format(sens_area, {"type": "3_color_scale", "min_color": "#E8B4AE", "mid_type": "num", "mid_value": 0,
+                                      "mid_color": "#FFFFFF", "max_color": "#C9D6C0"})
     VI["sens_r0"] = sr0
     # cenarios simples p/ grafico
     cr0 = sr0 + 2 + len(precos) + 1
@@ -954,13 +972,13 @@ def build(path, exemplo=False, macro=False):
         vi.write_formula(rr, 9, "=IFERROR(I{0}/H{0},0)".format(R), f_au(PCT))
         vi.write_formula(rr, 10, '=IFERROR(I{0}/COUNTIF(Socios,"?*"),0)'.format(R), f_au(MOEDA0))
     VI["cen_r0"] = cr0
-    vi.conditional_format("C23:C23", {"type": "cell", "criteria": "<", "value": 0, "format": fm(font_color="#FFFFFF", bg_color="#B91C1C", bold=True)})
+    vi.conditional_format("C23:C23", {"type": "cell", "criteria": "<", "value": 0, "format": fm(font_color="#FFFFFF", bg_color=WINE, bold=True)})
 
     # =========================================================================
     # ACERTO MENSAL
     # =========================================================================
     a = ws["ACERTO MENSAL"]
-    a.set_tab_color("#B91C1C")
+    a.set_tab_color(BRAND_D)
     a.set_column("A:A", 2)
     a.set_column("B:B", 36)
     a.set_column("C:C", 12)
@@ -973,13 +991,15 @@ def build(path, exemplo=False, macro=False):
     a.set_column("J:J", 2)
     a.set_column("K:L", 6, None, {"hidden": True})
     a.set_row(1, 32)
+    a.set_row(0, 22)
+    a.merge_range("B1:I1", "HLM CONSTRUÇÕES  ·  ACERTO DE CONTAS COM OS SÓCIOS", fm(font_name=F_MONO, font_size=8, bold=True, font_color=BRAND, valign="bottom"))
     a.merge_range("B2:I2", "", f_title)
     a.write_formula("B2", '="ACERTO DE CONTAS  —  "&UPPER(NomeEmp)', f_title)
     a.merge_range("B3:I3", "", f_sub)
     a.write_formula("B3", '=Construtora&"  |  "&Conta&"  |  Taxa de administração: "&ROUND(TaxaAdm*100,2)&"%"', f_sub)
     a.set_row(4, 26)
     a.write("B5", "MÊS DE REFERÊNCIA  ▶", fm(bold=True, font_size=12, align="right", font_color=NAVY))
-    f_sel = fm(bold=True, font_size=14, bg_color="#FDE68A", border=2, border_color=GOLD, align="center", num_format="mmmm/yyyy")
+    f_sel = fm(bold=True, font_size=14, bg_color=BRAND_L, border=2, border_color=BRAND, align="center", num_format="mmmm/yyyy", font_name=F_TIT)
     a.merge_range("C5:D5", None, f_sel)
     if exemplo:
         a.write_datetime("C5", dt.datetime(2026, 9, 1), f_sel)
@@ -988,18 +1008,18 @@ def build(path, exemplo=False, macro=False):
     wb.define_name("SelMes", "=%s!$C$5" % AC)
     a.data_validation("C5", {"validate": "list", "source": "=Meses", "input_title": "Mês do acerto",
                              "input_message": "Escolha o mês. Todo o relatório é recalculado."})
-    a.write("E5", "Emitido em:", fm(align="right", italic=True, font_color="#475569"))
-    a.write_formula("F5", "=TODAY()", fm(num_format=DATA, italic=True, font_color="#475569", align="left"))
-    a.write_formula("K5", "=IFERROR(MATCH(SelMes,Meses,0),0)", fm(font_color="#94A3B8"))  # coluna do mes
+    a.write("E5", "Emitido em:", fm(align="right", italic=True, font_color=WARM_D))
+    a.write_formula("F5", "=TODAY()", fm(num_format=DATA, italic=True, font_color=WARM_D, align="left"))
+    a.write_formula("K5", "=IFERROR(MATCH(SelMes,Meses,0),0)", fm(font_color=WARM))  # coluna do mes
     a.merge_range("B6:I6", "", f_note)
     if macro:
-        a.write("B6", "Escolha o mês na célula amarela e clique em  BAIXAR ACERTO (PDF)  para gerar o arquivo e enviar aos sócios.", f_note)
+        a.write("B6", "Escolha o mês na célula laranja e clique em  BAIXAR ACERTO (PDF)  para gerar o arquivo e enviar aos sócios.", f_note)
         a.insert_button("G4", {"macro": "BaixarAcertoPDF", "caption": "⬇  BAIXAR ACERTO (PDF)", "width": 250, "height": 34,
                                "x_offset": 4, "y_offset": 4})
     else:
         a.write("B6", "Para baixar: Excel → Arquivo › Exportar › PDF (aba atual)  |  Google Planilhas → Arquivo › Fazer download › PDF › 'Página atual'. "
                       "A versão .xlsm tem o botão BAIXAR ACERTO (PDF).", f_note)
-    a.write_formula("K6", "=IF(K5=0,1,0)", fm(font_color="#94A3B8"))
+    a.write_formula("K6", "=IF(K5=0,1,0)", fm(font_color=WARM))
 
     def acol(fx_row, offset=0):
         """valor do FLUXO na coluna do mes selecionado (offset em meses)."""
@@ -1052,7 +1072,7 @@ def build(path, exemplo=False, macro=False):
     a.merge_range("B%d:E%d" % (rtot, rtot), "TOTAL DO MÊS A RATEAR (custo direto + taxa de adm)", f_big_l)
     a.write_formula("F%d" % rtot, "=F%d+F%d" % (rsub, radm), f_big)
     a.write_formula("H%d" % rsub, '=IF(ABS(F{0}-{1})<0.01,"✔ confere com o fluxo","✖ difere do fluxo")'.format(rsub, acol(22)),
-                    fm(italic=True, font_size=9, font_color="#64748B"))
+                    fm(italic=True, font_size=9, font_color=WARM_D))
     a.write_blank("G%d" % rtot, None, f_big)
 
     # 2. resumo de caixa
@@ -1072,7 +1092,7 @@ def build(path, exemplo=False, macro=False):
         rr += 1
     a.merge_range("B%d:E%d" % (rr, rr), "(=) SALDO FINAL DE CAIXA", f_tot_l)
     a.write_formula("F%d" % rr, "=F{0}+F{1}+F{2}-F{3}-F{4}".format(s2 + 1, s2 + 2, s2 + 3, s2 + 4, s2 + 5), f_tot)
-    a.write_formula("G%d" % rr, '=IF(ABS(F{0}-{1})<0.01,"✔ confere","✖ verificar")'.format(rr, acol(27)), fm(italic=True, font_size=9, font_color="#64748B"))
+    a.write_formula("G%d" % rr, '=IF(ABS(F{0}-{1})<0.01,"✔ confere","✖ verificar")'.format(rr, acol(27)), fm(italic=True, font_size=9, font_color=WARM_D))
     r_saldo = rr
     rr += 1
     a.merge_range("B%d:E%d" % (rr, rr), "Contas a pagar com vencimento no mês seguinte (c/ adm)", f_lbl)
@@ -1080,7 +1100,7 @@ def build(path, exemplo=False, macro=False):
     rr += 1
     a.merge_range("B%d:E%d" % (rr, rr), "Recebimentos previstos no mês seguinte", f_lbl)
     a.write_formula("F%d" % rr, "=" + acol(30, 1), f_au(MOEDA))
-    a.conditional_format("F%d" % r_saldo, {"type": "cell", "criteria": "<", "value": -0.005, "format": fm(font_color="#FFFFFF", bg_color="#B91C1C", bold=True, num_format=MOEDA)})
+    a.conditional_format("F%d" % r_saldo, {"type": "cell", "criteria": "<", "value": -0.005, "format": fm(font_color="#FFFFFF", bg_color=WINE, bold=True, num_format=MOEDA)})
 
     # 3. rateio por socio
     s3 = rr + 2
@@ -1108,7 +1128,7 @@ def build(path, exemplo=False, macro=False):
     a.write_formula("C%d" % rts, "=SUM(C%d:C%d)" % (soc_a1, soc_a2), f_tot_p)
     for cl in "DEFGH":
         a.write_formula("%s%d" % (cl, rts), "=SUM(%s%d:%s%d)" % (cl, soc_a1, cl, soc_a2), f_tot)
-    a.write_formula("I%d" % rts, '=IF(ROUND(C%d,4)<>1,"⚠ PARTIC. ≠ 100%%","")' % rts, fm(bold=True, font_color=RED_FG, bg_color="#E2E8F0", border=1, border_color=LINE))
+    a.write_formula("I%d" % rts, '=IF(ROUND(C%d,4)<>1,"⚠ PARTIC. ≠ 100%%","")' % rts, fm(bold=True, font_color=RED_FG, bg_color="#ECE7E0", border=1, border_color=LINE))
     a.merge_range("B%d:I%d" % (rts + 1, rts + 2),
                   "Cota dos custos = total do mês × participação.  Resultado do mês = aportes + cota das receitas − cota dos custos.  "
                   "Posição acumulada = tudo o que o sócio aportou + sua cota das receitas − sua cota de todos os custos, desde o início até este mês. "
@@ -1116,7 +1136,7 @@ def build(path, exemplo=False, macro=False):
     a.set_row(rts, 18)
     a.conditional_format("I%d:I%d" % (soc_a1, soc_a2), {"type": "cell", "criteria": "==", "value": '"DEVE APORTAR"', "format": fm(bg_color=RED_BG, font_color=RED_FG, bold=True)})
     a.conditional_format("I%d:I%d" % (soc_a1, soc_a2), {"type": "cell", "criteria": "==", "value": '"CRÉDITO"', "format": fm(bg_color=GREEN_BG, font_color=GREEN_FG, bold=True)})
-    a.conditional_format("I%d:I%d" % (soc_a1, soc_a2), {"type": "cell", "criteria": "==", "value": '"EM DIA"', "format": fm(bg_color="#E0F2FE", font_color="#075985", bold=True)})
+    a.conditional_format("I%d:I%d" % (soc_a1, soc_a2), {"type": "cell", "criteria": "==", "value": '"EM DIA"', "format": fm(bg_color=CREAM, font_color=INK, bold=True)})
 
     # 4. detalhamento despesas
     s4 = rts + 4
@@ -1127,7 +1147,7 @@ def build(path, exemplo=False, macro=False):
     for k in range(DET_LINHAS):
         r = d1 + k
         R = str(r)
-        a.write_formula("K" + R, '=IFERROR(MATCH(%d,D_ORD,0),"")' % (k + 1), fm(font_color="#94A3B8", font_size=8))
+        a.write_formula("K" + R, '=IFERROR(MATCH(%d,D_ORD,0),"")' % (k + 1), fm(font_color=WARM, font_size=8))
 
         def g(rng_name, R=R):
             return 'IF($K{0}="","",INDEX({1},$K{0}))'.format(R, rng_name)
@@ -1147,7 +1167,7 @@ def build(path, exemplo=False, macro=False):
     a.write_formula("I%d" % (d2 + 1), "=SUM(I%d:I%d)" % (d1, d2), f_tot)
     a.merge_range("C%d:H%d" % (d2 + 1, d2 + 1), "", f_tot_l)
     a.write_formula("C%d" % (d2 + 1), '=IF(COUNTIFS(D_MES,SelMes,D_VALOR,"<>",D_STATUS,"<>A PAGAR")>%d,"⚠ Há mais de %d lançamentos no mês — veja a aba DESPESAS (filtro por MÊS).","")' % (DET_LINHAS, DET_LINHAS),
-                    fm(bold=True, font_color=RED_FG, bg_color="#E2E8F0", border=1, border_color=LINE))
+                    fm(bold=True, font_color=RED_FG, bg_color="#ECE7E0", border=1, border_color=LINE))
 
     # 5. folha
     s5 = d2 + 3
@@ -1158,7 +1178,7 @@ def build(path, exemplo=False, macro=False):
     for k in range(FOL_LINHAS):
         r = f1 + k
         R = str(r)
-        a.write_formula("K" + R, '=IFERROR(MATCH(%d,F_ORD,0),"")' % (k + 1), fm(font_color="#94A3B8", font_size=8))
+        a.write_formula("K" + R, '=IFERROR(MATCH(%d,F_ORD,0),"")' % (k + 1), fm(font_color=WARM, font_size=8))
         a.write_formula("B" + R, '=IF($K{0}="","",INDEX(F_NOME,$K{0})&IF(INDEX(F_FUNCAO,$K{0})<>""," ("&INDEX(F_FUNCAO,$K{0})&")",""))'.format(R),
                         fm(border=1, border_color=LINE, font_size=9, indent=1, shrink=True))
         a.write_formula("C" + R, '=IF($K{0}="","",INDEX(F_DATA,$K{0}))'.format(R), fm(border=1, border_color=LINE, font_size=9, num_format=DATA, align="center"))
@@ -1179,11 +1199,11 @@ def build(path, exemplo=False, macro=False):
     a.write("B%d" % s6, "______________________________", fm(align="center"))
     a.write("E%d" % s6, "______________________________", fm(align="center"))
     a.merge_range("G%d:I%d" % (s6, s6), "______________________________", fm(align="center"))
-    a.write_formula("B%d" % (s6 + 1), '="Responsável — "&Construtora', fm(align="center", font_size=9, font_color="#475569"))
-    a.write("E%d" % (s6 + 1), "Sócio", fm(align="center", font_size=9, font_color="#475569"))
-    a.merge_range("G%d:I%d" % (s6 + 1, s6 + 1), "Sócio", fm(align="center", font_size=9, font_color="#475569"))
+    a.write_formula("B%d" % (s6 + 1), '="Responsável — "&Construtora', fm(align="center", font_size=9, font_color=WARM_D))
+    a.write("E%d" % (s6 + 1), "Sócio", fm(align="center", font_size=9, font_color=WARM_D))
+    a.merge_range("G%d:I%d" % (s6 + 1, s6 + 1), "Sócio", fm(align="center", font_size=9, font_color=WARM_D))
 
-    a.print_area("B2:I%d" % (s6 + 1))
+    a.print_area("B1:I%d" % (s6 + 1))
     a.set_portrait()
     a.set_paper(9)
     a.fit_to_pages(1, 0)
@@ -1258,7 +1278,7 @@ def build(path, exemplo=False, macro=False):
     # AUDITORIA
     # =========================================================================
     au = ws["AUDITORIA"]
-    au.set_tab_color("#64748B")
+    au.set_tab_color(WARM_D)
     au.set_column("A:A", 2)
     au.set_column("B:B", 5)
     au.set_column("C:C", 66)
@@ -1304,7 +1324,7 @@ def build(path, exemplo=False, macro=False):
         au.write_formula(r, 5, '=IF(ABS(E%d)<0.005,"OK","CORRIGIR")' % (r + 1), f_au(align="center", bold=True))
     a1, a2 = 6, 5 + len(checks)
     au.write(a2, 2, "TOTAL DE VERIFICAÇÕES COM PENDÊNCIA", f_tot_l)
-    au.write_formula(a2, 5, '=COUNTIF(F%d:F%d,"CORRIGIR")' % (a1, a2), fm(bold=True, bg_color="#E2E8F0", border=1, border_color=LINE, align="center"))
+    au.write_formula(a2, 5, '=COUNTIF(F%d:F%d,"CORRIGIR")' % (a1, a2), fm(bold=True, bg_color="#ECE7E0", border=1, border_color=LINE, align="center"))
     wb.define_name("AudPend", "=AUDITORIA!$F$%d" % (a2 + 1))
     au.conditional_format("F%d:F%d" % (a1, a2), {"type": "cell", "criteria": "==", "value": '"OK"', "format": fm(bg_color=GREEN_BG, font_color=GREEN_FG, bold=True)})
     au.conditional_format("F%d:F%d" % (a1, a2), {"type": "cell", "criteria": "==", "value": '"CORRIGIR"', "format": fm(bg_color=RED_BG, font_color=RED_FG, bold=True)})
@@ -1313,23 +1333,26 @@ def build(path, exemplo=False, macro=False):
     # PAINEL GERAL
     # =========================================================================
     p = ws["PAINEL GERAL"]
-    p.set_tab_color(NAVY)
+    p.set_tab_color(BRAND)
     p.set_column("A:A", 2)
     p.set_column("B:Q", 10.5)
     p.set_column("R:R", 2)
     p.set_row(1, 34)
-    p.merge_range("B2:Q2", "", fm(bold=True, font_size=20, font_color="white", bg_color=NAVY, indent=1))
-    p.write_formula("B2", '="PAINEL GERAL  —  "&UPPER(NomeEmp)', fm(bold=True, font_size=20, font_color="white", bg_color=NAVY, indent=1))
+    p.set_row(0, 22)
+    p.merge_range("B1:Q1", "HLM CONSTRUÇÕES  ·  PAINEL DE GESTÃO DA OBRA", fm(font_name=F_MONO, font_size=8, bold=True, font_color=BRAND, valign="bottom"))
+    p.merge_range("B2:Q2", "", fm(bold=True, font_size=20, font_color="white", bg_color=INK, indent=1, font_name=F_TIT, bottom=5, bottom_color=BRAND))
+    p.write_formula("B2", '="PAINEL GERAL  —  "&UPPER(NomeEmp)', fm(bold=True, font_size=20, font_color="white", bg_color=INK, indent=1, font_name=F_TIT, bottom=5, bottom_color=BRAND))
     p.merge_range("B3:Q3", "", f_sub)
     p.write_formula("B3", '=Construtora&"  |  "&IF(Endereco="","",Endereco&"  |  ")&NumUnid&" unidades  |  Prazo de obra: "&Prazo&" meses  |  Pendências na auditoria: "&AudPend', f_sub)
 
     def tile(ws_, r, c0, label, fml, nf, sub_lbl, sub_fml, sub_nf, color):
-        f_l = fm(bold=True, font_size=9, font_color="white", bg_color=color, indent=1)
-        f_v = fm(bold=True, font_size=18, font_color=color, bg_color="#FFFFFF", indent=1, num_format=nf,
-                 left=2, right=2, left_color=color, right_color=color)
-        f_sl = fm(font_size=8, font_color="#64748B", bg_color="#F8FAFC", indent=1, left=2, left_color=color, bottom=2, bottom_color=color)
-        f_sv = fm(font_size=9, bold=True, font_color="#334155", bg_color="#F8FAFC", align="right", num_format=sub_nf,
-                  right=2, right_color=color, bottom=2, bottom_color=color)
+        f_l = fm(bold=True, font_size=8, font_color=BRAND if color in (INK, BRAND) else CREAM, bg_color=INK, indent=1, font_name=F_MONO)
+        f_v = fm(bold=True, font_size=18, font_color=color, bg_color="#FFFFFF", indent=1, num_format=nf, font_name=F_TIT,
+                 left=1, right=1, left_color=LINE, right_color=LINE)
+        f_sl = fm(font_size=8, font_color=WARM_D, bg_color=CREAM_L, indent=1, left=1, left_color=LINE, bottom=5, bottom_color=color,
+                  font_name=F_MONO)
+        f_sv = fm(font_size=9, bold=True, font_color=INK, bg_color=CREAM_L, align="right", num_format=sub_nf,
+                  right=1, right_color=LINE, bottom=5, bottom_color=color)
         ws_.merge_range(r, c0, r, c0 + 3, label, f_l)
         ws_.merge_range(r + 1, c0, r + 1, c0 + 3, "", f_v)
         ws_.write_formula(r + 1, c0, fml, f_v)
@@ -1339,20 +1362,20 @@ def build(path, exemplo=False, macro=False):
         ws_.set_row(r + 1, 30)
 
     p.merge_range("B5:Q5", "FINANCEIRO DA OBRA", f_sec)
-    tile(p, 5, 1, "TOTAL APORTADO PELOS SÓCIOS", "=SUM(%s!$B$7:$B$13)" % FX, MOEDA0, "Sócios ativos", '=COUNTIF(Socios,"?*")', "0", "#1F4E79")
-    tile(p, 5, 5, "CUSTO REALIZADO (c/ adm)", "=%s!$B$24" % FX, MOEDA0, "Taxa de adm", "=%s!$B$23" % FX, MOEDA0, "#C2410C")
-    tile(p, 5, 9, "SALDO EM CAIXA", "=%s!$B$27" % FX, MOEDA0, "Saldo projetado", "=%s!$B$31" % FX, MOEDA0, "#0F766E")
-    tile(p, 5, 13, "CONTAS A PAGAR", '=SUMIFS(D_VALOR,D_STATUS,"A PAGAR")', MOEDA0, "Vencidas", '=SUMIFS(D_VALOR,D_STATUS,"A PAGAR",D_VENC,"<"&TODAY())', MOEDA0, "#B91C1C")
+    tile(p, 5, 1, "TOTAL APORTADO PELOS SÓCIOS", "=SUM(%s!$B$7:$B$13)" % FX, MOEDA0, "Sócios ativos", '=COUNTIF(Socios,"?*")', "0", INK)
+    tile(p, 5, 5, "CUSTO REALIZADO (c/ adm)", "=%s!$B$24" % FX, MOEDA0, "Taxa de adm", "=%s!$B$23" % FX, MOEDA0, BRAND)
+    tile(p, 5, 9, "SALDO EM CAIXA", "=%s!$B$27" % FX, MOEDA0, "Saldo projetado", "=%s!$B$31" % FX, MOEDA0, BRAND_D)
+    tile(p, 5, 13, "CONTAS A PAGAR", '=SUMIFS(D_VALOR,D_STATUS,"A PAGAR")', MOEDA0, "Vencidas", '=SUMIFS(D_VALOR,D_STATUS,"A PAGAR",D_VENC,"<"&TODAY())', MOEDA0, WINE)
     p.merge_range("B10:Q10", "ORÇAMENTO E AVANÇO", f_sec)
-    tile(p, 10, 1, "ORÇAMENTO TOTAL (c/ adm)", "=%s!$B$%d" % (OR, OTOT), MOEDA0, "% consumido", "=%s!$I$%d" % (OR, OTOT), PCT, "#1F4E79")
-    tile(p, 10, 5, "AVANÇO FÍSICO", "=%s!$J$%d" % (OR, OSUB), PCT, "Avanço financeiro", "=%s!$I$%d" % (OR, OSUB), PCT, "#2A9D8F")
-    tile(p, 10, 9, "CUSTO PROJETADO (EAC)", "=%s!$L$%d" % (OR, OTOT), MOEDA0, "Variação × orçado", "=%s!$M$%d" % (OR, OTOT), MOEDA0, "#8E5EA2")
-    tile(p, 10, 13, "CUSTO / m² CONSTRUÍDO (proj.)", "=vb_cm2c", MOEDA0, "Realizado / m²", "=IFERROR(%s!$B$24/AreaConstruida,0)" % FX, MOEDA0, "#B45309")
+    tile(p, 10, 1, "ORÇAMENTO TOTAL (c/ adm)", "=%s!$B$%d" % (OR, OTOT), MOEDA0, "% consumido", "=%s!$I$%d" % (OR, OTOT), PCT, INK)
+    tile(p, 10, 5, "AVANÇO FÍSICO", "=%s!$J$%d" % (OR, OSUB), PCT, "Avanço financeiro", "=%s!$I$%d" % (OR, OSUB), PCT, WARM_D)
+    tile(p, 10, 9, "CUSTO PROJETADO (EAC)", "=%s!$L$%d" % (OR, OTOT), MOEDA0, "Variação × orçado", "=%s!$M$%d" % (OR, OTOT), MOEDA0, "#3A3633")
+    tile(p, 10, 13, "CUSTO / m² CONSTRUÍDO (proj.)", "=vb_cm2c", MOEDA0, "Realizado / m²", "=IFERROR(%s!$B$24/AreaConstruida,0)" % FX, MOEDA0, BRAND_D)
     p.merge_range("B15:Q15", "COMERCIAL E RESULTADO", f_sec)
-    tile(p, 15, 1, "VGV TOTAL ESPERADO", "=vb_vgv", MOEDA0, "VGV vendido", "=vb_vgv_vend", MOEDA0, "#1F4E79")
-    tile(p, 15, 5, "UNIDADES VENDIDAS", '=COUNTIF(V_STATUS,"VENDIDA")&" de "&COUNTIFS(V_UNID,"?*",V_STATUS,"<>PERMUTA")', "@", "% do VGV vendido", "=vb_pct_vend", PCT, "#2A9D8F")
-    tile(p, 15, 9, "LUCRO PROJETADO", "=vb_lucro", MOEDA0, "Margem s/ VGV", "=vb_margem", PCT, "#0F766E")
-    tile(p, 15, 13, "RECEBIDO DE CLIENTES", '=SUMIFS(R_VALOR,R_STATUS,"RECEBIDO")', MOEDA0, "A receber", '=SUMIFS(R_VALOR,R_STATUS,"A RECEBER")', MOEDA0, "#E07A1F")
+    tile(p, 15, 1, "VGV TOTAL ESPERADO", "=vb_vgv", MOEDA0, "VGV vendido", "=vb_vgv_vend", MOEDA0, INK)
+    tile(p, 15, 5, "UNIDADES VENDIDAS", '=COUNTIF(V_STATUS,"VENDIDA")&" de "&COUNTIFS(V_UNID,"?*",V_STATUS,"<>PERMUTA")', "@", "% do VGV vendido", "=vb_pct_vend", PCT, WARM_D)
+    tile(p, 15, 9, "LUCRO PROJETADO", "=vb_lucro", MOEDA0, "Margem s/ VGV", "=vb_margem", PCT, BRAND_D)
+    tile(p, 15, 13, "RECEBIDO DE CLIENTES", '=SUMIFS(R_VALOR,R_STATUS,"RECEBIDO")', MOEDA0, "A receber", '=SUMIFS(R_VALOR,R_STATUS,"A RECEBER")', MOEDA0, BRAND)
 
     # alertas
     p.merge_range("B20:Q20", "ALERTAS DE GESTÃO", f_sec)
@@ -1387,9 +1410,9 @@ def build(path, exemplo=False, macro=False):
     cats = "=%s!$C$5:$%s$5" % (FX, CL)
 
     def ch_base(ch, title_):
-        ch.set_title({"name": title_, "name_font": {"size": 11, "bold": True, "color": "#1F2A44"}})
+        ch.set_title({"name": title_, "name_font": {"size": 11, "bold": True, "color": INK, "name": F_TIT}})
         ch.set_legend({"position": "bottom", "font": {"size": 8}})
-        ch.set_chartarea({"border": {"color": "#CBD5E1"}})
+        ch.set_chartarea({"border": {"color": CREAM}})
         return ch
 
     gr = 30
@@ -1399,30 +1422,30 @@ def build(path, exemplo=False, macro=False):
     c1.add_series({"name": "Saídas", "categories": cats, "values": "=%s!$C$24:$%s$24" % (FX, CL), "fill": {"color": SERIES[1]}})
     l1 = wb.add_chart({"type": "line"})
     l1.add_series({"name": "Saldo acumulado", "categories": cats, "values": "=CALC!$C$31:$%s$31" % CALC_CL,
-                   "line": {"color": SERIES[2], "width": 2.5}, "marker": {"type": "circle", "size": 4, "fill": {"color": SERIES[2]}, "border": {"color": SERIES[2]}}})
+                   "line": {"color": WARM_D, "width": 2.5}, "marker": {"type": "circle", "size": 4, "fill": {"color": WARM_D}, "border": {"color": WARM_D}}})
     c1.combine(l1)
     ch_base(c1, "Entradas × Saídas × Saldo acumulado")
     c1.set_x_axis({"num_format": MES, "num_font": {"size": 8, "rotation": -45}, "date_axis": False})
-    c1.set_y_axis({"num_format": '"R$" #,##0,"k"', "num_font": {"size": 8}, "major_gridlines": {"visible": True, "line": {"color": "#E2E8F0"}}})
+    c1.set_y_axis({"num_format": '"R$" #,##0,"k"', "num_font": {"size": 8}, "major_gridlines": {"visible": True, "line": {"color": "#ECE7E0"}}})
     p.insert_chart("B%d" % (gr + 1), c1, {"x_scale": 1.27, "y_scale": 1.15})
 
     c2 = wb.add_chart({"type": "line"})
     c2.add_series({"name": "Planejado acumulado", "categories": cats, "values": "=%s!$C$39:$%s$39" % (FX, CL),
-                   "line": {"color": "#94A3B8", "width": 2.25, "dash_type": "dash"}})
+                   "line": {"color": WARM, "width": 2.25, "dash_type": "dash"}})
     c2.add_series({"name": "Realizado acumulado", "categories": cats, "values": "=CALC!$C$32:$%s$32" % CALC_CL,
                    "line": {"color": SERIES[0], "width": 2.75}})
     ch_base(c2, "Curva S — desembolso planejado × realizado")
     c2.set_x_axis({"num_format": MES, "num_font": {"size": 8, "rotation": -45}})
-    c2.set_y_axis({"num_format": '"R$" #,##0,"k"', "num_font": {"size": 8}, "major_gridlines": {"visible": True, "line": {"color": "#E2E8F0"}}})
+    c2.set_y_axis({"num_format": '"R$" #,##0,"k"', "num_font": {"size": 8}, "major_gridlines": {"visible": True, "line": {"color": "#ECE7E0"}}})
     p.insert_chart("J%d" % (gr + 1), c2, {"x_scale": 1.27, "y_scale": 1.15})
 
     gr2 = gr + 19
     c3 = wb.add_chart({"type": "bar"})
-    c3.add_series({"name": "Orçado", "categories": "=CALC!$O$2:$O$%d" % (1 + N_ETAPA), "values": "=CALC!$P$2:$P$%d" % (1 + N_ETAPA), "fill": {"color": "#94A3B8"}, "gap": 50})
+    c3.add_series({"name": "Orçado", "categories": "=CALC!$O$2:$O$%d" % (1 + N_ETAPA), "values": "=CALC!$P$2:$P$%d" % (1 + N_ETAPA), "fill": {"color": WARM}, "gap": 50})
     c3.add_series({"name": "Realizado", "categories": "=CALC!$O$2:$O$%d" % (1 + N_ETAPA), "values": "=CALC!$Q$2:$Q$%d" % (1 + N_ETAPA), "fill": {"color": SERIES[0]}})
     ch_base(c3, "Orçado × Realizado por etapa")
     c3.set_y_axis({"reverse": True, "num_font": {"size": 7}})
-    c3.set_x_axis({"num_format": '"R$" #,##0,"k"', "num_font": {"size": 8}, "major_gridlines": {"visible": True, "line": {"color": "#E2E8F0"}}})
+    c3.set_x_axis({"num_format": '"R$" #,##0,"k"', "num_font": {"size": 8}, "major_gridlines": {"visible": True, "line": {"color": "#ECE7E0"}}})
     p.insert_chart("B%d" % gr2, c3, {"x_scale": 1.27, "y_scale": 1.6})
 
     c4 = wb.add_chart({"type": "bar"})
@@ -1430,7 +1453,7 @@ def build(path, exemplo=False, macro=False):
     c4.add_series({"name": "% financeiro", "categories": "=CALC!$O$2:$O$%d" % (1 + N_ETAPA), "values": "=CALC!$R$2:$R$%d" % (1 + N_ETAPA), "fill": {"color": SERIES[1]}})
     ch_base(c4, "Avanço físico × financeiro por etapa")
     c4.set_y_axis({"reverse": True, "num_font": {"size": 7}})
-    c4.set_x_axis({"num_format": "0%", "min": 0, "num_font": {"size": 8}, "major_gridlines": {"visible": True, "line": {"color": "#E2E8F0"}}})
+    c4.set_x_axis({"num_format": "0%", "min": 0, "num_font": {"size": 8}, "major_gridlines": {"visible": True, "line": {"color": "#ECE7E0"}}})
     p.insert_chart("J%d" % gr2, c4, {"x_scale": 1.27, "y_scale": 1.6})
 
     gr3 = gr2 + 25
@@ -1441,14 +1464,14 @@ def build(path, exemplo=False, macro=False):
     ch_base(c5, "Custos pagos por categoria")
     c5.set_legend({"none": True})
     c5.set_y_axis({"reverse": True, "num_font": {"size": 7}})
-    c5.set_x_axis({"num_format": '"R$" #,##0,"k"', "num_font": {"size": 8}, "major_gridlines": {"visible": True, "line": {"color": "#E2E8F0"}}})
+    c5.set_x_axis({"num_format": '"R$" #,##0,"k"', "num_font": {"size": 8}, "major_gridlines": {"visible": True, "line": {"color": "#ECE7E0"}}})
     p.insert_chart("B%d" % gr3, c5, {"x_scale": 1.27, "y_scale": 1.3})
 
     c6 = wb.add_chart({"type": "column"})
     c6.add_series({"name": "Aportado", "categories": "=CALC!$D$2:$D$%d" % (1 + N_SOCIOS), "values": "=CALC!$E$2:$E$%d" % (1 + N_SOCIOS), "fill": {"color": SERIES[0]}, "gap": 80})
     c6.add_series({"name": "Cota líquida devida", "categories": "=CALC!$D$2:$D$%d" % (1 + N_SOCIOS), "values": "=CALC!$F$2:$F$%d" % (1 + N_SOCIOS), "fill": {"color": SERIES[1]}})
     ch_base(c6, "Aportes × cota de cada sócio")
-    c6.set_y_axis({"num_format": '"R$" #,##0,"k"', "num_font": {"size": 8}, "major_gridlines": {"visible": True, "line": {"color": "#E2E8F0"}}})
+    c6.set_y_axis({"num_format": '"R$" #,##0,"k"', "num_font": {"size": 8}, "major_gridlines": {"visible": True, "line": {"color": "#ECE7E0"}}})
     c6.set_x_axis({"num_font": {"size": 8}})
     p.insert_chart("J%d" % gr3, c6, {"x_scale": 1.27, "y_scale": 1.3})
 
@@ -1456,17 +1479,17 @@ def build(path, exemplo=False, macro=False):
     c7 = wb.add_chart({"type": "pie"})
     c7.add_series({"name": "Oficial × Especial", "categories": "=CALC!$H$2:$H$4", "values": "=CALC!$I$2:$I$4",
                    "data_labels": {"percentage": True, "font": {"size": 9, "bold": True, "color": "white"}},
-                   "points": [{"fill": {"color": SERIES[0]}}, {"fill": {"color": SERIES[1]}}, {"fill": {"color": "#C0392B"}}]})
+                   "points": [{"fill": {"color": SERIES[0]}}, {"fill": {"color": SERIES[1]}}, {"fill": {"color": WINE}}]})
     ch_base(c7, "Custo direto: caixa oficial × especial")
     p.insert_chart("B%d" % gr4, c7, {"x_scale": 1.27, "y_scale": 1.1})
 
     c8 = wb.add_chart({"type": "column"})
     c8.add_series({"name": "Saldo do mês", "categories": cats, "values": "=%s!$C$26:$%s$26" % (FX, CL),
-                   "fill": {"color": SERIES[2]}, "invert_if_negative": True, "invert_if_negative_color": "#C0392B", "gap": 40})
+                   "fill": {"color": SERIES[2]}, "invert_if_negative": True, "invert_if_negative_color": WINE, "gap": 40})
     ch_base(c8, "Saldo de caixa de cada mês")
     c8.set_legend({"none": True})
     c8.set_x_axis({"num_format": MES, "num_font": {"size": 8, "rotation": -45}})
-    c8.set_y_axis({"num_format": '"R$" #,##0,"k"', "num_font": {"size": 8}, "major_gridlines": {"visible": True, "line": {"color": "#E2E8F0"}}})
+    c8.set_y_axis({"num_format": '"R$" #,##0,"k"', "num_font": {"size": 8}, "major_gridlines": {"visible": True, "line": {"color": "#ECE7E0"}}})
     p.insert_chart("J%d" % gr4, c8, {"x_scale": 1.27, "y_scale": 1.1})
     p.set_landscape()
     p.fit_to_pages(1, 0)
@@ -1477,62 +1500,64 @@ def build(path, exemplo=False, macro=False):
     # PAINEL COMERCIAL
     # =========================================================================
     pc = ws["PAINEL COMERCIAL"]
-    pc.set_tab_color(NAVY)
+    pc.set_tab_color(BRAND)
     pc.set_column("A:A", 2)
     pc.set_column("B:Q", 10.5)
     pc.set_row(1, 34)
-    pc.merge_range("B2:Q2", "", fm(bold=True, font_size=20, font_color="white", bg_color=NAVY, indent=1))
-    pc.write_formula("B2", '="PAINEL COMERCIAL  —  "&UPPER(NomeEmp)', fm(bold=True, font_size=20, font_color="white", bg_color=NAVY, indent=1))
+    pc.set_row(0, 22)
+    pc.merge_range("B1:Q1", "HLM CONSTRUÇÕES  ·  COMERCIAL E VIABILIDADE", fm(font_name=F_MONO, font_size=8, bold=True, font_color=BRAND, valign="bottom"))
+    pc.merge_range("B2:Q2", "", fm(bold=True, font_size=20, font_color="white", bg_color=INK, indent=1, font_name=F_TIT, bottom=5, bottom_color=BRAND))
+    pc.write_formula("B2", '="PAINEL COMERCIAL  —  "&UPPER(NomeEmp)', fm(bold=True, font_size=20, font_color="white", bg_color=INK, indent=1, font_name=F_TIT, bottom=5, bottom_color=BRAND))
     pc.merge_range("B3:Q3", "", f_sub)
     pc.write_formula("B3", '=NumUnid&" unidades  |  "&ROUND(AreaPrivativa,0)&" m² privativos  |  Preço alvo: R$ "&ROUND(PrecoM2,0)&" por m²"', f_sub)
     pc.merge_range("B5:Q5", "VENDAS", f_sec)
-    tile(pc, 5, 1, "VGV DE TABELA", "=vb_vgv_tab", MOEDA0, "Em estoque", "=vb_vgv_est", MOEDA0, "#1F4E79")
-    tile(pc, 5, 5, "VGV CONTRATADO", "=vb_vgv_vend", MOEDA0, "% do VGV", "=vb_pct_vend", PCT, "#2A9D8F")
+    tile(pc, 5, 1, "VGV DE TABELA", "=vb_vgv_tab", MOEDA0, "Em estoque", "=vb_vgv_est", MOEDA0, INK)
+    tile(pc, 5, 5, "VGV CONTRATADO", "=vb_vgv_vend", MOEDA0, "% do VGV", "=vb_pct_vend", PCT, WARM_D)
     tile(pc, 5, 9, "TICKET MÉDIO DE VENDA", '=IFERROR(vb_vgv_vend/COUNTIF(V_STATUS,"VENDIDA"),0)', MOEDA0, "Desconto médio s/ tabela",
-         '=IFERROR(1-vb_vgv_vend/SUMIFS(V_TAB,V_STATUS,"VENDIDA"),0)', PCT, "#8E5EA2")
-    tile(pc, 5, 13, "PREÇO MÉDIO VENDIDO (m²)", "=vb_pm2_vend", MOEDA0, "Tabela (m²)", "=vb_pm2_tab", MOEDA0, "#B45309")
+         '=IFERROR(1-vb_vgv_vend/SUMIFS(V_TAB,V_STATUS,"VENDIDA"),0)', PCT, "#3A3633")
+    tile(pc, 5, 13, "PREÇO MÉDIO VENDIDO (m²)", "=vb_pm2_vend", MOEDA0, "Tabela (m²)", "=vb_pm2_tab", MOEDA0, BRAND_D)
     pc.merge_range("B10:Q10", "RECEBÍVEIS E RESULTADO", f_sec)
-    tile(pc, 10, 1, "RECEBIDO DE CLIENTES", '=SUMIFS(R_VALOR,R_STATUS,"RECEBIDO")', MOEDA0, "% dos contratos", '=IFERROR(SUMIFS(R_VALOR,R_STATUS,"RECEBIDO")/vb_vgv_vend,0)', PCT, "#0F766E")
-    tile(pc, 10, 5, "CARTEIRA A RECEBER", '=SUMIFS(V_ARECEBER,V_STATUS,"VENDIDA")', MOEDA0, "Parcelas lançadas", '=SUMIFS(R_VALOR,R_STATUS,"A RECEBER")', MOEDA0, "#1F4E79")
+    tile(pc, 10, 1, "RECEBIDO DE CLIENTES", '=SUMIFS(R_VALOR,R_STATUS,"RECEBIDO")', MOEDA0, "% dos contratos", '=IFERROR(SUMIFS(R_VALOR,R_STATUS,"RECEBIDO")/vb_vgv_vend,0)', PCT, BRAND_D)
+    tile(pc, 10, 5, "CARTEIRA A RECEBER", '=SUMIFS(V_ARECEBER,V_STATUS,"VENDIDA")', MOEDA0, "Parcelas lançadas", '=SUMIFS(R_VALOR,R_STATUS,"A RECEBER")', MOEDA0, INK)
     tile(pc, 10, 9, "INADIMPLÊNCIA (vencido)", '=SUMIFS(R_VALOR,R_STATUS,"A RECEBER",R_DATA,"<"&TODAY())', MOEDA0, "Parcelas vencidas",
-         '=COUNTIFS(R_STATUS,"A RECEBER",R_DATA,"<"&TODAY())', "0", "#B91C1C")
-    tile(pc, 10, 13, "LUCRO PROJETADO", "=vb_lucro", MOEDA0, "ROI s/ custo", "=vb_roi", PCT, "#2A9D8F")
+         '=COUNTIFS(R_STATUS,"A RECEBER",R_DATA,"<"&TODAY())', "0", WINE)
+    tile(pc, 10, 13, "LUCRO PROJETADO", "=vb_lucro", MOEDA0, "ROI s/ custo", "=vb_roi", PCT, WARM_D)
     pc.merge_range("B15:Q15", "VIABILIDADE", f_sec)
-    tile(pc, 15, 1, "RECEITA LÍQUIDA", "=vb_rec_liq", MOEDA0, "Comissões + impostos", "=vb_comis+vb_imp", MOEDA0, "#1F4E79")
-    tile(pc, 15, 5, "CUSTO TOTAL PROJETADO", "=vb_custo_tot", MOEDA0, "Custo / m² privativo", "=vb_cm2p", MOEDA0, "#C2410C")
-    tile(pc, 15, 9, "PONTO DE EQUILÍBRIO (VGV)", "=vb_be_vgv", MOEDA0, "Preço mín. / m²", "=vb_be_m2", MOEDA0, "#8E5EA2")
-    tile(pc, 15, 13, "EXPOSIÇÃO MÁXIMA DE CAIXA", "=vb_expo", MOEDA0, "Avanço físico", "=vb_pct_fis", PCT, "#B45309")
+    tile(pc, 15, 1, "RECEITA LÍQUIDA", "=vb_rec_liq", MOEDA0, "Comissões + impostos", "=vb_comis+vb_imp", MOEDA0, INK)
+    tile(pc, 15, 5, "CUSTO TOTAL PROJETADO", "=vb_custo_tot", MOEDA0, "Custo / m² privativo", "=vb_cm2p", MOEDA0, BRAND)
+    tile(pc, 15, 9, "PONTO DE EQUILÍBRIO (VGV)", "=vb_be_vgv", MOEDA0, "Preço mín. / m²", "=vb_be_m2", MOEDA0, "#3A3633")
+    tile(pc, 15, 13, "EXPOSIÇÃO MÁXIMA DE CAIXA", "=vb_expo", MOEDA0, "Avanço físico", "=vb_pct_fis", PCT, BRAND_D)
 
     gq = 20
     pc.merge_range("B%d:Q%d" % (gq, gq), "GRÁFICOS", f_sec)
     q1 = wb.add_chart({"type": "doughnut"})
     q1.add_series({"name": "Unidades por status", "categories": "=CALC!$K$2:$K$5", "values": "=CALC!$L$2:$L$5",
                    "data_labels": {"value": True, "font": {"bold": True, "color": "white"}},
-                   "points": [{"fill": {"color": "#94A3B8"}}, {"fill": {"color": "#E07A1F"}}, {"fill": {"color": "#2A9D8F"}}, {"fill": {"color": "#8E5EA2"}}]})
+                   "points": [{"fill": {"color": WARM}}, {"fill": {"color": WARM_D}}, {"fill": {"color": BRAND}}, {"fill": {"color": INK}}]})
     q1.set_hole_size(50)
     ch_base(q1, "Unidades por status")
     pc.insert_chart("B%d" % (gq + 1), q1, {"x_scale": 1.27, "y_scale": 1.15})
     q2 = wb.add_chart({"type": "column"})
-    q2.add_series({"name": "Recebido", "categories": cats, "values": "=%s!$C$14:$%s$14" % (FX, CL), "fill": {"color": SERIES[2]}, "gap": 50})
-    q2.add_series({"name": "A receber (previsto)", "categories": cats, "values": "=%s!$C$30:$%s$30" % (FX, CL), "fill": {"color": "#CBD5E1"}})
+    q2.add_series({"name": "Recebido", "categories": cats, "values": "=%s!$C$14:$%s$14" % (FX, CL), "fill": {"color": BRAND}, "gap": 50})
+    q2.add_series({"name": "A receber (previsto)", "categories": cats, "values": "=%s!$C$30:$%s$30" % (FX, CL), "fill": {"color": CREAM}})
     ch_base(q2, "Recebimentos de clientes por mês")
     q2.set_x_axis({"num_format": MES, "num_font": {"size": 8, "rotation": -45}})
-    q2.set_y_axis({"num_format": '"R$" #,##0,"k"', "num_font": {"size": 8}, "major_gridlines": {"visible": True, "line": {"color": "#E2E8F0"}}})
+    q2.set_y_axis({"num_format": '"R$" #,##0,"k"', "num_font": {"size": 8}, "major_gridlines": {"visible": True, "line": {"color": "#ECE7E0"}}})
     pc.insert_chart("J%d" % (gq + 1), q2, {"x_scale": 1.27, "y_scale": 1.15})
     q3 = wb.add_chart({"type": "column"})
     cr0 = VI["cen_r0"]
     q3.add_series({"name": "Lucro", "categories": "=VIABILIDADE!$F$%d:$F$%d" % (cr0 + 2, cr0 + 4),
                    "values": "=VIABILIDADE!$I$%d:$I$%d" % (cr0 + 2, cr0 + 4),
-                   "points": [{"fill": {"color": "#C0392B"}}, {"fill": {"color": SERIES[0]}}, {"fill": {"color": SERIES[2]}}],
+                   "points": [{"fill": {"color": WINE}}, {"fill": {"color": INK}}, {"fill": {"color": BRAND}}],
                    "data_labels": {"value": True, "num_format": '"R$" #,##0,"k"', "font": {"size": 8}}, "gap": 80})
     ch_base(q3, "Lucro projetado por cenário de preço")
     q3.set_legend({"none": True})
-    q3.set_y_axis({"num_format": '"R$" #,##0,"k"', "num_font": {"size": 8}, "major_gridlines": {"visible": True, "line": {"color": "#E2E8F0"}}})
+    q3.set_y_axis({"num_format": '"R$" #,##0,"k"', "num_font": {"size": 8}, "major_gridlines": {"visible": True, "line": {"color": "#ECE7E0"}}})
     pc.insert_chart("B%d" % (gq + 19), q3, {"x_scale": 1.27, "y_scale": 1.15})
     q4 = wb.add_chart({"type": "pie"})
     q4.add_series({"name": "VGV", "categories": "=CALC!$K$2:$K$4", "values": "=CALC!$M$2:$M$4",
                    "data_labels": {"percentage": True, "font": {"bold": True, "color": "white"}},
-                   "points": [{"fill": {"color": "#94A3B8"}}, {"fill": {"color": "#E07A1F"}}, {"fill": {"color": "#2A9D8F"}}]})
+                   "points": [{"fill": {"color": WARM}}, {"fill": {"color": WARM_D}}, {"fill": {"color": BRAND}}]})
     ch_base(q4, "VGV: estoque × reservado × vendido")
     pc.insert_chart("J%d" % (gq + 19), q4, {"x_scale": 1.27, "y_scale": 1.15})
 
@@ -1561,7 +1586,7 @@ def build(path, exemplo=False, macro=False):
             col += span
     pc.conditional_format("C%d:D%d" % (tq + 2, tq + 1 + V_FIM - V_INI + 1), {"type": "cell", "criteria": "==", "value": '"VENDIDA"', "format": fm(bg_color=GREEN_BG, font_color=GREEN_FG, bold=True)})
     pc.conditional_format("C%d:D%d" % (tq + 2, tq + 1 + V_FIM - V_INI + 1), {"type": "cell", "criteria": "==", "value": '"RESERVADA"', "format": fm(bg_color=AMB_BG, font_color=AMB_FG, bold=True)})
-    pc.conditional_format("C%d:D%d" % (tq + 2, tq + 1 + V_FIM - V_INI + 1), {"type": "cell", "criteria": "==", "value": '"PERMUTA"', "format": fm(bg_color="#E0E7FF", font_color="#3730A3", bold=True)})
+    pc.conditional_format("C%d:D%d" % (tq + 2, tq + 1 + V_FIM - V_INI + 1), {"type": "cell", "criteria": "==", "value": '"PERMUTA"', "format": fm(bg_color="#ECE7E0", font_color="#3A3633", bold=True)})
     pc.set_landscape()
     pc.fit_to_pages(1, 0)
 
@@ -1569,7 +1594,7 @@ def build(path, exemplo=False, macro=False):
     # GUIA
     # =========================================================================
     gu = ws["GUIA"]
-    gu.set_tab_color("#64748B")
+    gu.set_tab_color(WARM_D)
     gu.set_column("A:A", 2)
     gu.set_column("B:B", 30)
     gu.set_column("C:C", 110)
@@ -1580,8 +1605,13 @@ def build(path, exemplo=False, macro=False):
     f_gk = fm(bold=True, border=1, border_color=LINE, indent=1, valign="top", text_wrap=True)
     f_gv = fm(border=1, border_color=LINE, indent=1, valign="top", text_wrap=True)
     secs = [
+        ("IDENTIDADE VISUAL HLM", [
+            ("Cores", "Preto HLM #040203 · Laranja HLM #D45508 (escuro #A83F03) · Creme #DBD4CA · Cinza quente #AEA79F · Vinho #951D25 (alertas)."),
+            ("Tipografia", "Títulos: Space Grotesk · Rótulos: Space Mono · Dados: Arial. Space Grotesk e Space Mono são gratuitas (Google Fonts); "
+                           "no Google Planilhas já estão disponíveis. No Excel, instale-as para ver a tipografia exata (sem elas, o Excel usa uma fonte padrão)."),
+        ]),
         ("LEGENDA", [
-            ("Célula AMARELA", "Você preenche."),
+            ("Célula LARANJA-CLARA", "Você preenche."),
             ("Célula CINZA", "Calculada automaticamente — não digite por cima."),
             ("Coluna VERIFICAÇÃO", "OK em verde = lançamento válido. Vermelho = o que está errado naquela linha."),
         ]),

@@ -1,6 +1,6 @@
 # HLM — Planilha de gestão do novo empreendimento
 
-Planilha de gestão administrativa, financeira e comercial da construtora, feita a partir do modelo **HLM ONE**.
+Planilha de gestão administrativa, financeira e comercial da construtora, feita a partir do modelo **HLM ONE** e com a identidade visual HLM (preto #040203, laranja #D45508, creme #DBD4CA, cinza quente #AEA79F; tipografia Space Grotesk e Space Mono).
 Ela corrige os erros do HLM ONE e foi ampliada.
 
 ## Arquivos (`planilhas/`)

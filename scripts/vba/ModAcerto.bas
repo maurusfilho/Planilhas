@@ -18,7 +18,7 @@ Public Sub BaixarAcertoPDF()
     Set ws = ThisWorkbook.Worksheets("ACERTO MENSAL")
     mesRef = ws.Range("SelMes").Value
     If Not IsDate(mesRef) Then
-        MsgBox "Selecione o mes do acerto (celula amarela) antes de baixar.", vbExclamation, "Acerto de contas"
+        MsgBox "Selecione o mes do acerto (celula laranja) antes de baixar.", vbExclamation, "Acerto de contas"
         Exit Sub
     End If
 
