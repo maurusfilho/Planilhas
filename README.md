@@ -9,7 +9,7 @@ Ela corrige os erros do HLM ONE e foi ampliada.
 |---|---|
 | `HLM_Gestao_Novo_Empreendimento.xlsm` | **Versão principal (Excel).** Tem o botão **BAIXAR ACERTO (PDF)** na aba ACERTO MENSAL. |
 | `HLM_Gestao_Novo_Empreendimento.xlsx` | Mesma planilha sem macro, para Google Planilhas / Excel online. Para baixar o acerto: Arquivo › Fazer download › PDF › "Página atual". |
-| `HLM_Gestao_Novo_Empreendimento_EXEMPLO.xlsm` | Mesma estrutura com dados fictícios, para ver os painéis e o acerto funcionando. |
+| `HLM_ONE_Gestao.xlsm` *(só local, fora do Git)* | HLM ONE preenchido com os dados reais dos acertos. Não fica no repositório porque contém dados financeiros reais. |
 
 ## Abas
 
@@ -23,6 +23,11 @@ Ela corrige os erros do HLM ONE e foi ampliada.
 8. **DESPESAS · FOLHA PAG · APORTES · VENDAS · RECEBIMENTOS**: lançamentos, com listas suspensas e uma coluna de verificação automática em cada linha.
 9. **AUDITORIA**: 16 verificações de consistência e conciliação entre as abas.
 10. **GUIA**: como usar, como os dados se conectam e a lista das correções feitas em relação ao HLM ONE.
+
+## HLM ONE (dados reais)
+
+A versão com os dados reais (`planilhas/HLM_ONE_Gestao.xlsm`), o CSV de lançamentos (`dados/`) e os scripts que leem os PDFs (`scripts/hlm_one/`) ficam **fora do Git** (veja o `.gitignore`).
+Se esses arquivos existirem localmente, o `gerar_planilha.py` também gera a versão do HLM ONE.
 
 ## Regerar
 

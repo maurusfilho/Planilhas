@@ -4,13 +4,13 @@
 Gera:
   planilhas/HLM_Gestao_Novo_Empreendimento.xlsm   (com botao/macro para baixar o acerto em PDF)
   planilhas/HLM_Gestao_Novo_Empreendimento.xlsx   (sem macro - Google Planilhas / Excel online)
-  planilhas/HLM_Gestao_Novo_Empreendimento_EXEMPLO.xlsx (mesma estrutura, com dados ficticios p/ ver os paineis)
+  planilhas/HLM_ONE_Gestao.xlsm   (opcional, local: HLM ONE com dados reais — não versionado)
 
 Uso:  python3 scripts/gerar_planilha.py
 """
+import csv
 import datetime as dt
 import os
-import random
 
 import xlsxwriter
 from xlsxwriter.utility import xl_col_to_name, xl_rowcol_to_cell
@@ -18,6 +18,7 @@ from xlsxwriter.utility import xl_col_to_name, xl_rowcol_to_cell
 AQUI = os.path.dirname(os.path.abspath(__file__))
 SAIDA = os.path.join(os.path.dirname(AQUI), "planilhas")
 VBA_BIN = os.path.join(AQUI, "vba", "vbaProject.bin")
+DADOS_HLM_ONE = os.path.join(os.path.dirname(AQUI), "dados", "hlm_one_lancamentos.csv")
 
 # ----------------------------------------------------------------------------
 # Dimensoes
@@ -53,6 +54,8 @@ CATEGORIAS = [
     ("Taxas, Licenças, IPTU e Cartório", "Legal", "SIM"),
     ("Escritório e Administrativo", "Administrativo", "SIM"),
     ("Seguros e Garantias", "Legal", "SIM"),
+    ("Encargos Trabalhistas (INSS, FGTS)", "Mão de obra", "SIM"),
+    ("EPI, Uniformes e Saúde Ocupacional", "Mão de obra", "SIM"),
     ("Comissões e Corretagem", "Comercial", "NÃO"),
     ("Marketing e Vendas", "Comercial", "NÃO"),
     ("Impostos sobre Vendas", "Comercial", "NÃO"),
@@ -138,7 +141,8 @@ class F:
         return self.cache[key]
 
 
-def build(path, exemplo=False, macro=False):
+def build(path, exemplo=False, macro=False, dados=None):
+    exemplo = exemplo or bool(dados)
     wb = xlsxwriter.Workbook(path, {"strings_to_numbers": False})
     wb.set_calc_mode("auto")
     wb.set_properties({"title": "HLM - Gestão do Novo Empreendimento", "author": "HLM",
@@ -319,8 +323,9 @@ def build(path, exemplo=False, macro=False):
     wb.define_name("Categorias", "=CONFIG!$F$6:$F$%d" % (5 + N_CAT))
     wb.define_name("CatGrupo", "=CONFIG!$G$6:$G$%d" % (5 + N_CAT))
     wb.define_name("CatAdm", "=CONFIG!$H$6:$H$%d" % (5 + N_CAT))
-    CAT_COMISSAO = "CONFIG!$F$%d" % (6 + 12)
-    CAT_IMPOSTO = "CONFIG!$F$%d" % (6 + 14)
+    _cats = [x[0] for x in CATEGORIAS]
+    CAT_COMISSAO = "CONFIG!$F$%d" % (6 + _cats.index("Comissões e Corretagem"))
+    CAT_IMPOSTO = "CONFIG!$F$%d" % (6 + _cats.index("Impostos sobre Vendas"))
 
     c.merge_range("J4:K4", "ETAPAS DA OBRA (orçamento)", f_sec)
     c.write_row("J5", ["ETAPA", "CUSTO DE OBRA?"], f_hdr)
@@ -401,7 +406,7 @@ def build(path, exemplo=False, macro=False):
     d.merge_range("A3:N3", "Lance TODOS os gastos. O MÊS é calculado pela DATA (não digite). STATUS em branco = PAGO. "
                   "Contas futuras: STATUS = A PAGAR + VENCIMENTO; quando pagar, mude para PAGO e ajuste a DATA.", f_sub)
     hdr = ["DATA", "MÊS (auto)", "TIPO", "CATEGORIA", "ETAPA", "FORNECEDOR", "DESCRIÇÃO", "Nº NF / RECIBO",
-           "FORMA PGTO", "VALOR (R$)", "STATUS", "VENCIMENTO", "BASE ADM (auto)", "VERIFICAÇÃO (auto)", "ord"]
+           "FORMA PGTO", "VALOR (R$)", "STATUS", "VENCIMENTO", "BASE ADM (auto)", "VERIFICAÇÃO (auto)", "ord", "OBSERVAÇÃO / ORIGEM"]
     d.set_row(4, 30)
     d.write_row(4, 0, hdr, f_hdr)
     d.write_formula(3, 8, '="Total lançado:"', fm(bold=True, align="right"))
@@ -450,7 +455,10 @@ def build(path, exemplo=False, macro=False):
     d.conditional_format("L%d:L%d" % (D_INI, D_FIM), {"type": "formula", "criteria": '=AND(K%d="A PAGAR",L%d<>"",L%d<TODAY())' % (D_INI, D_INI, D_INI),
                                                        "format": fm(font_color=RED_FG, bg_color=RED_BG, bold=True)})
     d.freeze_panes(5, 1)
-    d.autofilter(4, 0, D_FIM - 1, 13)
+    d.set_column("P:P", 48)
+    for r_ in range(D_INI, D_FIM + 1):
+        d.write_blank(r_ - 1, 15, None, f_in(font_size=9))
+    d.autofilter(4, 0, D_FIM - 1, 15)
 
     # =========================================================================
     # FOLHA PAG
@@ -1002,7 +1010,7 @@ def build(path, exemplo=False, macro=False):
     f_sel = fm(bold=True, font_size=14, bg_color=BRAND_L, border=2, border_color=BRAND, align="center", num_format="mmmm/yyyy", font_name=F_TIT)
     a.merge_range("C5:D5", None, f_sel)
     if exemplo:
-        a.write_datetime("C5", dt.datetime(2026, 9, 1), f_sel)
+        a.write_datetime("C5", dt.datetime(2026, 9, 1), f_sel)  # HLM ONE: último mês com os dois caixas completos
     else:
         a.write_formula("C5", "=FluxoIni", f_sel)
     wb.define_name("SelMes", "=%s!$C$5" % AC)
@@ -1672,163 +1680,10 @@ def build(path, exemplo=False, macro=False):
             r += 1
         r += 1
 
-    if exemplo:
-        preencher_exemplo(ws, wb)
+    ws["_guia"] = (gu, r, f_sec, f_gk, f_gv)
+    if dados:
+        dados(ws, wb, fm)   # preenchimento opcional com dados reais (módulo local, fora do Git)
     wb.close()
-
-
-# ----------------------------------------------------------------------------
-# Dados de exemplo (apenas no arquivo _EXEMPLO)
-# ----------------------------------------------------------------------------
-def preencher_exemplo(ws, wb):
-    random.seed(42)
-    fin = dt.datetime
-    c = ws["CONFIG"]
-    equipe = [("João Silva", "Mestre de obras", 280), ("Pedro Santos", "Pedreiro", 220), ("Carlos Lima", "Pedreiro", 220),
-              ("Marcos Souza", "Servente", 150), ("Antônio Reis", "Servente", 150), ("Luiz Costa", "Eletricista", 260)]
-    f_in = wb.add_format({"bg_color": INPUT, "border": 1, "border_color": LINE, "font_name": "Calibri", "font_size": 10})
-    f_inm = wb.add_format({"bg_color": INPUT, "border": 1, "border_color": LINE, "num_format": MOEDA, "font_name": "Calibri", "font_size": 10})
-    f_ind = wb.add_format({"bg_color": INPUT, "border": 1, "border_color": LINE, "num_format": DATA, "font_name": "Calibri", "font_size": 10})
-    f_inp = wb.add_format({"bg_color": INPUT, "border": 1, "border_color": LINE, "num_format": PCT, "font_name": "Calibri", "font_size": 10})
-    f_inn = wb.add_format({"bg_color": INPUT, "border": 1, "border_color": LINE, "num_format": "#,##0.00", "font_name": "Calibri", "font_size": 10})
-    c.write("C5", "RESIDENCIAL EXEMPLO HLM", f_in)
-    c.write_datetime("C9", fin(2026, 1, 1), f_ind)
-    c.write("C10", 16, f_in)
-    c.write("C12", 360, f_inn)
-    c.write("C13", 420, f_inn)
-    c.write("C21", 8600, f_inm)
-    c.write("C24", 350000, f_inm)
-    for i, (n, fn, di) in enumerate(equipe):
-        c.write(5 + i, 12, n, f_in)
-        c.write(5 + i, 13, fn, f_in)
-        c.write(5 + i, 14, di, f_inm)
-    forn = ["Casa do Construtor", "Concreteira Castelo", "Elétrica Central", "Hidro Forte", "Madeireira União", "Caçambas Rápidas", "Escritório Contábil"]
-    for i, n in enumerate(forn):
-        c.write(5 + i, 16, n, f_in)
-
-    # orcamento
-    o = ws["ORÇAMENTO"]
-    orc = [60000, 35000, 180000, 320000, 150000, 70000, 85000, 90000, 160000, 95000, 60000, 70000, 40000, 15000, 60000, 25000]
-    fis = [1.0, 1.0, 1.0, 0.85, 0.55, 0.2, 0.35, 0.3, 0.05, 0.0, 0.0, 0.0, 0.0, 0.0, 0.55, 0.3]
-    for i, (v, fp) in enumerate(zip(orc, fis)):
-        o.write(5 + i, 1, v, f_inm)
-        o.write(5 + i, 9, fp, f_inp)
-
-    # despesas: jan..out 2026
-    d = ws["DESPESAS"]
-    etapa_mes = {1: [0, 1], 2: [1, 2], 3: [2], 4: [2, 3], 5: [3], 6: [3, 4], 7: [3, 4, 6], 8: [4, 6, 7, 5], 9: [4, 5, 7, 14], 10: [4, 7, 8, 14]}
-    janela = {0: (1, 3), 1: (1, 3), 2: (2, 5), 3: (4, 10), 4: (6, 10), 5: (8, 10), 6: (7, 10), 7: (8, 10), 8: (10, 10), 14: (1, 10)}
-    cat_por_etapa = {0: [8, 9], 1: [0, 3, 7, 5], 2: [0, 2, 3, 4], 3: [0, 2, 3, 4], 4: [0, 2, 5], 5: [0, 2], 6: [1, 2], 7: [1, 2], 8: [0, 2], 14: [10, 6, 7]}
-    lanc = []
-    for et, (m1, m2) in janela.items():
-        alvo = orc[et] * fis[et] * random.uniform(0.62, 0.8)  # o restante vem da folha
-        n = max(2, int(alvo // 9000))
-        for _ in range(n):
-            lanc.append((random.randint(m1, m2), et, round(alvo / n * random.uniform(0.6, 1.4), 2)))
-    lanc.sort()
-    r = 5
-    for m, et, val in lanc:
-        if True:
-            cat = random.choice(cat_por_etapa.get(et, [0]))
-            tipo = "OFICIAL" if random.random() < 0.72 else "ESPECIAL"
-            day = random.randint(1, 28)
-            d.write_datetime(r, 0, fin(2026, m, day), f_ind)
-            d.write(r, 2, tipo, f_in)
-            d.write(r, 3, CATEGORIAS[cat][0], f_in)
-            d.write(r, 4, ETAPAS[et][0], f_in)
-            d.write(r, 5, random.choice(forn), f_in)
-            d.write(r, 6, "Compra/serviço ref. " + ETAPAS[et][0][3:].lower(), f_in)
-            d.write(r, 7, "NF %d" % random.randint(1000, 9999) if tipo == "OFICIAL" else "", f_in)
-            d.write(r, 8, random.choice(["PIX", "Boleto", "Transferência"]), f_in)
-            d.write(r, 9, val, f_inm)
-            d.write(r, 10, "PAGO", f_in)
-            r += 1
-    # comissao paga + a pagar
-    d.write_datetime(r, 0, fin(2026, 8, 20), f_ind)
-    d.write(r, 2, "OFICIAL", f_in); d.write(r, 3, CATEGORIAS[12][0], f_in); d.write(r, 4, ETAPAS[15][0], f_in)
-    d.write(r, 5, "Imobiliária Centro", f_in); d.write(r, 6, "Comissão venda AP 101", f_in); d.write(r, 9, 19800, f_inm); d.write(r, 10, "PAGO", f_in)
-    r += 1
-    for k, (venc, val) in enumerate([(fin(2026, 11, 10), 38000), (fin(2026, 12, 10), 42000), (fin(2026, 10, 15), 6500)]):
-        d.write_datetime(r, 0, fin(2026, 10, 25), f_ind)
-        d.write(r, 2, "OFICIAL", f_in); d.write(r, 3, CATEGORIAS[0][0], f_in); d.write(r, 4, ETAPAS[8][0], f_in)
-        d.write(r, 5, "Casa do Construtor", f_in); d.write(r, 6, "Pedido revestimentos — parcela %d" % (k + 1), f_in)
-        d.write(r, 9, val, f_inm); d.write(r, 10, "A PAGAR", f_in); d.write_datetime(r, 11, venc, f_ind)
-        r += 1
-
-    # folha
-    fo = ws["FOLHA PAG"]
-    r = 5
-    for m in range(1, 11):
-        for q, day in (("1ª Quinzena (01-15)", 15), ("2ª Quinzena (16-fim)", 28)):
-            for n, fn, di in equipe:
-                if fn == "Eletricista" and m < 7:
-                    continue
-                et = 14 if fn == "Mestre de obras" else random.choice(etapa_mes[m])
-                fo.write_datetime(r, 0, fin(2026, m, day), f_ind)
-                fo.write(r, 2, q, f_in)
-                fo.write(r, 3, n, f_in)
-                fo.write(r, 5, ETAPAS[et][0], f_in)
-                fo.write(r, 6, "OFICIAL" if fn == "Mestre de obras" else "ESPECIAL", f_in)
-                fo.write(r, 7, random.choice([10, 11, 12, 12, 13]), f_in)
-                if random.random() < 0.15:
-                    fo.write(r, 10, 150, f_inm)
-                if random.random() < 0.1:
-                    fo.write(r, 11, 100, f_inm)
-                r += 1
-
-    # aportes
-    ap = ws["APORTES"]
-    r = 5
-    for m in range(1, 11):
-        for s, _ in SOCIOS:
-            val = 22000 if m > 1 else 60000
-            if s == "ROBINSON" and m in (6, 7, 8, 9, 10):
-                continue  # gera posicao negativa
-            ap.write_datetime(r, 0, fin(2026, m, 5), f_ind)
-            ap.write(r, 2, s, f_in)
-            ap.write(r, 3, "PIX", f_in)
-            ap.write(r, 4, "Aporte mensal", f_in)
-            ap.write(r, 5, val, f_inm)
-            r += 1
-
-    # vendas
-    v = ws["VENDAS"]
-    unidades = [("AP 101", "2 quartos", 58), ("AP 102", "2 quartos", 58), ("AP 201", "2 quartos", 60), ("AP 202", "3 quartos", 64),
-                ("AP 301", "Cobertura", 80), ("AP 302", "Cobertura", 80)]
-    status = ["VENDIDA", "VENDIDA", "RESERVADA", "DISPONÍVEL", "PERMUTA", "DISPONÍVEL"]
-    for i, ((u, t, ar), st) in enumerate(zip(unidades, status)):
-        rr = 5 + i
-        v.write(rr, 0, u, f_in); v.write(rr, 1, t, f_in); v.write(rr, 2, ar, f_in)
-        if t == "Cobertura":
-            v.write(rr, 3, 1.1, f_in)
-        v.write(rr, 5, st, f_in)
-        if st == "VENDIDA":
-            v.write(rr, 6, ["Ana Paula Ribeiro", "Fernando Alves"][i], f_in)
-            v.write(rr, 8, "Imobiliária Centro", f_in)
-            v.write_datetime(rr, 9, fin(2026, 7 + i, 12), f_ind)
-            v.write(rr, 10, [396000, 405000][i], f_inm)
-        if st == "PERMUTA":
-            v.write(rr, 6, "Proprietário do terreno", f_in)
-    # recebimentos
-    rc = ws["RECEBIMENTOS"]
-    rr = 5
-    plano = [("AP 101", fin(2026, 7, 12), 79200, "Sinal / Entrada", "RECEBIDO")]
-    for k in range(8):
-        plano.append(("AP 101", fin(2026, 8 + k, 12) if 8 + k <= 12 else fin(2027, 8 + k - 12, 12), 6000, "Parcela mensal",
-                      "RECEBIDO" if 8 + k <= 10 else "A RECEBER"))
-    plano.append(("AP 101", fin(2027, 6, 30), 268800, "Financiamento bancário", "A RECEBER"))
-    plano.append(("AP 102", fin(2026, 8, 12), 81000, "Sinal / Entrada", "RECEBIDO"))
-    plano.append(("AP 102", fin(2026, 9, 12), 7000, "Parcela mensal", "RECEBIDO"))
-    plano.append(("AP 102", fin(2026, 10, 12), 7000, "Parcela mensal", "A RECEBER"))
-    plano.append(("AP 102", fin(2026, 11, 12), 7000, "Parcela mensal", "A RECEBER"))
-    for u, data, val, tp, st in plano:
-        rc.write_datetime(rr, 0, data, f_ind)
-        rc.write(rr, 2, u, f_in)
-        rc.write(rr, 4, tp, f_in)
-        rc.write(rr, 5, val, f_inm)
-        rc.write(rr, 6, st, f_in)
-        rc.write(rr, 7, "PIX" if tp != "Financiamento bancário" else "Financiamento", f_in)
-        rr += 1
 
 
 def main():
@@ -1836,7 +1691,15 @@ def main():
     base = os.path.join(SAIDA, "HLM_Gestao_Novo_Empreendimento")
     build(base + ".xlsm", macro=True)
     build(base + ".xlsx")
-    build(base + "_EXEMPLO.xlsm", exemplo=True, macro=True)
+    # Planilha do HLM ONE com dados reais: só é gerada se o módulo local scripts/hlm_one/preencher.py
+    # e o CSV dados/hlm_one_lancamentos.csv existirem (ambos ficam fora do Git por conterem dados financeiros reais).
+    try:
+        from hlm_one.preencher import preencher_hlm_one
+    except ImportError:
+        preencher_hlm_one = None
+    if preencher_hlm_one and os.path.exists(DADOS_HLM_ONE):
+        build(os.path.join(SAIDA, "HLM_ONE_Gestao.xlsm"), macro=True,
+              dados=lambda ws, wb, fm: preencher_hlm_one(ws, wb, fm, DADOS_HLM_ONE))
     print("ok:", os.listdir(SAIDA))
 
 

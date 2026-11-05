@@ -2,3 +2,9 @@ __pycache__/
 scripts/vba/_tmp.xlsm
 *_recalc.xlsx
 ~$*
+
+# Dados reais do HLM ONE (financeiros/pessoais) — mantidos só localmente
+dados/
+scripts/hlm_one/
+planilhas/HLM_ONE_Gestao.xlsm
+relatorios/
